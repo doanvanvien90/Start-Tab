@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>StandBy Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    height:100vh;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    font-family:'Orbitron', sans-serif;
+    overflow:hidden;
+}
+
+/* ========== WELCOME SCREEN ========== */
+.welcome-screen{
+    position:fixed;
+    width:100%;
+    height:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    color:white;
+    z-index:20;
+}
+
+.welcome-text{
+    font-size:60px;
+    animation:shake 0.6s infinite;
+}
+
+@keyframes shake{
+    0%{transform:translateX(0)}
+    25%{transform:translateX(-5px)}
+    50%{transform:translateX(5px)}
+    75%{transform:translateX(-5px)}
+    100%{transform:translateX(0)}
+}
+
+.swipe-bar{
+    position:absolute;
+    bottom:-100%;
+    width:100%;
+    height:100%;
+    background:white;
+    transition:1s ease;
+}
+
+/* ========== MAIN ========== */
+.main{
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    padding-top:60px;
+    padding-bottom:120px;
+    opacity:0;
+    transition:1s ease;
+}
+
+.dashboard{
+    display:flex;
+    flex-direction:column;
+    gap:25px;
+    align-items:center;
+}
+
+.widget{
+    backdrop-filter:blur(25px);
+    background:rgba(255,255,255,0.12);
+    border-radius:30px;
+    padding:40px 60px;
+    color:white;
+    box-shadow:0 10px 40px rgba(0,0,0,0.4);
+    text-align:center;
+    min-width:350px;
+}
+
+#time{
+    font-size:72px;
+}
+
+#date{
+    font-size:26px;
+    opacity:0.85;
+}
+
+/* ========== TASKBAR ========== */
+.taskbar{
+    position:fixed;
+    bottom:0;
+    left:0;
+    width:100%;
+    height:65px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    backdrop-filter:blur(25px);
+    background:rgba(20,20,20,0.6);
+    border-top:1px solid rgba(255,255,255,0.1);
+    z-index:10;
+
+    opacity:0;
+    transform:translateY(100%);
+    transition:0.6s ease;
+}
+
+.taskbar-center{
+    display:flex;
+    gap:30px;
+}
+
+.taskbar-center a{
+    width:42px;
+    height:42px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:12px;
+    transition:0.2s ease;
+    position:relative;
+}
+
+.taskbar-center img{
+    width:28px;
+    height:28px;
+}
+
+.taskbar-center a:hover{
+    background:rgba(255,255,255,0.15);
+    transform:scale(1.1);
+}
+
+/* Active dot */
+.taskbar-center a::after{
+    content:"";
+    position:absolute;
+    bottom:-6px;
+    width:6px;
+    height:6px;
+    background:white;
+    border-radius:50%;
+    opacity:0;
+    transition:0.2s ease;
+}
+
+.taskbar-center a.active::after{
+    opacity:1;
+}
+</style>
+</head>
+
+<body>
+
+<!-- WELCOME -->
+<div class="welcome-screen" id="welcome">
+    <div class="welcome-text">WELCOME</div>
+    <div class="swipe-bar" id="swipe"></div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main">
+    <div class="dashboard">
+        <div class="widget">
+            <div id="time"></div>
+        </div>
+        <div class="widget">
+            <div id="date"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TASKBAR -->
+<div class="taskbar">
+    <div class="taskbar-center">
+
+        <a href="https://www.google.com" class="active">
+            <img src="https://cdn.simpleicons.org/google/white">
+        </a>
+
+        <a href="https://www.tiktok.com">
+            <img src="https://cdn.simpleicons.org/tiktok/white">
+        </a>
+
+        <a href="https://www.youtube.com">
+            <img src="https://cdn.simpleicons.org/youtube/white">
+        </a>
+
+        <a href="https://www.facebook.com">
+            <img src="https://cdn.simpleicons.org/facebook/white">
+        </a>
+
+        <a href="https://translate.google.com">
+            <img src="https://cdn.simpleicons.org/googletranslate/white">
+        </a>
+
+    </div>
+</div>
+
+<script>
+/* INTRO ANIMATION */
+setTimeout(()=>{
+    document.getElementById("swipe").style.bottom="0";
+},1500);
+
+setTimeout(()=>{
+    document.getElementById("welcome").style.display="none";
+    document.getElementById("main").style.opacity="1";
+
+    const taskbar=document.querySelector(".taskbar");
+    taskbar.style.opacity="1";
+    taskbar.style.transform="translateY(0)";
+},2500);
+
+/* CLOCK */
+function getOrdinal(n){
+    if(n>3 && n<21) return "th";
+    switch(n%10){
+        case 1:return "st";
+        case 2:return "nd";
+        case 3:return "rd";
+        default:return "th";
+    }
+}
+
+function updateTime(){
+    const now=new Date();
+    let hours=now.getHours();
+    const minutes=String(now.getMinutes()).padStart(2,'0');
+    const seconds=String(now.getSeconds()).padStart(2,'0');
+    const ampm=hours>=12?"PM":"AM";
+    hours=hours%12||12;
+    hours=String(hours).padStart(2,'0');
+
+    document.getElementById("time").innerHTML=
+        hours+":"+minutes+":"+seconds+" "+ampm;
+
+    const weekday=now.toLocaleDateString('en-US',{weekday:'long'});
+    const month=now.toLocaleDateString('en-US',{month:'long'});
+    const day=now.getDate();
+    const year=now.getFullYear();
+
+    document.getElementById("date").innerHTML=
+        weekday+", "+month+" "+day+getOrdinal(day)+", "+year;
+}
+
+setInterval(updateTime,1000);
+updateTime();
+
+/* ACTIVE SWITCH */
+const icons=document.querySelectorAll(".taskbar-center a");
+icons.forEach(icon=>{
+    icon.addEventListener("click",()=>{
+        icons.forEach(i=>i.classList.remove("active"));
+        icon.classList.add("active");
+    });
+});
+</script>
+
+</body>
+</html>
